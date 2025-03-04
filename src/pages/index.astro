@@ -5,7 +5,7 @@ interface DebtData {
 }
 
 // Static population value for 2025 (others defined in script)
-const population = 54_000_000;
+const population = 54000000;
 ---
 
 <!DOCTYPE html>
@@ -198,7 +198,7 @@ const population = 54_000_000;
 
     <script define:vars={{ population }}>
         let debt = 0; // Will be set dynamically
-        let debtData = { debt: '0 trillion KES', date: 'N/A' }; // Initial placeholder
+        let debtData = { debt: '0 trillion KES', date: '' }; // Initial placeholder
         const debt2000 = 0.346875e12; // ~346.875 billion KES (2000 baseline)
         const debt2005 = 0.69375e12;  // ~693.75 billion KES
         const debt2010 = 1.3875e12;   // ~1.3875 trillion KES
