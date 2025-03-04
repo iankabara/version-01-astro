@@ -3,8 +3,7 @@ interface DebtData {
   debt: string;
   date: string;
 }
-import "./index.css";
-
+import "./global.css";
 
 // Static population value for 2025 (others defined in script)
 const population = 54_000_000;
@@ -18,6 +17,21 @@ const population = 54_000_000;
     <title>Kenya Debt Clock (Astro)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import "tailwindcss";
+        @keyframes debtIncrease {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        .animate-debt {
+            display: inline-block;
+            animation: debtIncrease 0.5s ease-in-out infinite alternate;
+        }
+        .chart-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-300 dark:bg-gray-900 dark:text-white" id="body">
     <div class="text-center w-full max-w-4xl">
