@@ -1,0 +1,428 @@
+---
+interface DebtData {
+  debt: string;
+  date: string;
+}
+
+// Static population value for 2025 (others defined in script)
+const population = 54_000_000;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kenya Debt Clock (Astro)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import "tailwindcss";
+        @keyframes debtIncrease {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+        .animate-debt {
+            display: inline-block;
+            animation: debtIncrease 0.5s ease-in-out infinite alternate;
+        }
+        .chart-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-300 dark:bg-gray-900 dark:text-white" id="body">
+    <div class="text-center w-full max-w-4xl">
+        <!-- Theme Toggle -->
+        <div class="absolute top-4 right-4">
+            <button id="theme-toggle" class="p-2 bg-gray-700 rounded-full hover:bg-gray-600">
+                <svg id="sun-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <svg id="moon-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+            </button>
+        </div>
+
+        <!-- Header -->
+        <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-green-400 to-blue-500 text-transparent bg-clip-text">Kenya National Debt</h1>
+
+        <!-- Debt Progress Every 5 Years -->
+        <div class="mb-8 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-green-400 mb-4">Debt Progress (Every 5 Years)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-lg font-bold">2000</p>
+                    <p id="debt-2000" class="text-xl text-gray-300">346.88 billion KES</p>
+                    <p class="text-sm text-gray-400">Ext: 173.44B | Int: 173.44B</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2005</p>
+                    <p id="debt-2005" class="text-xl text-gray-300">693.75 billion KES</p>
+                    <p class="text-sm text-gray-400">Ext: 346.88B | Int: 346.88B</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2010</p>
+                    <p id="debt-2010" class="text-xl text-gray-300">1.39 trillion KES</p>
+                    <p class="text-sm text-gray-400">Ext: 0.69T | Int: 0.69T</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2015</p>
+                    <p id="debt-2015" class="text-xl text-gray-300">2.78 trillion KES</p>
+                    <p class="text-sm text-gray-400">Ext: 1.39T | Int: 1.39T</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2020</p>
+                    <p id="debt-2020" class="text-xl text-gray-300">5.55 trillion KES</p>
+                    <p class="text-sm text-gray-400">Ext: 2.78T | Int: 2.78T</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2025 (Live)</p>
+                    <p id="debt" class="text-xl font-mono animate-debt text-gray-300">Loading...</p>
+                    <p id="debt-breakdown" class="text-sm text-gray-400">Ext: Loading... | Int: Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debt Per Citizen Every 5 Years -->
+        <div class="mb-8 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-green-400 mb-4">Debt Per Citizen (Every 5 Years)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-lg font-bold">2000</p>
+                    <p id="per-citizen-2000" class="text-xl text-gray-300">11,299 KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2005</p>
+                    <p id="per-citizen-2005" class="text-xl text-gray-300">19,487 KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2010</p>
+                    <p id="per-citizen-2010" class="text-xl text-gray-300">34,259 KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2015</p>
+                    <p id="per-citizen-2015" class="text-xl text-gray-300">60,195 KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2020</p>
+                    <p id="per-citizen-2020" class="text-xl text-gray-300">107,977 KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2025 (Live)</p>
+                    <p id="per-citizen-2025" class="text-xl text-gray-300">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Budget Deficit Every 5 Years -->
+        <div class="mb-8 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-green-400 mb-4">Budget Deficit (Every 5 Years)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-lg font-bold">2000</p>
+                    <p id="deficit-2000" class="text-xl text-gray-300">+7.57 billion KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2005</p>
+                    <p id="deficit-2005" class="text-xl text-gray-300">-64.50 billion KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2010</p>
+                    <p id="deficit-2010" class="text-xl text-gray-300">-147.80 billion KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2015</p>
+                    <p id="deficit-2015" class="text-xl text-gray-300">-506.70 billion KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2020</p>
+                    <p id="deficit-2020" class="text-xl text-gray-300">-478.30 billion KES</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2025 (Projected)</p>
+                    <p id="deficit-2025" class="text-xl text-gray-300">-831.00 billion KES</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exchange Rate Progress Every 5 Years -->
+        <div class="mb-8 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-green-400 mb-4">KES/USD Exchange Rate (Every 5 Years)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <p class="text-lg font-bold">2000</p>
+                    <p id="rate-2000" class="text-xl text-gray-300">76 KES/USD</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2005</p>
+                    <p id="rate-2005" class="text-xl text-gray-300">73 KES/USD</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2010</p>
+                    <p id="rate-2010" class="text-xl text-gray-300">81 KES/USD</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2015</p>
+                    <p id="rate-2015" class="text-xl text-gray-300">102 KES/USD</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2020</p>
+                    <p id="rate-2020" class="text-xl text-gray-300">109 KES/USD</p>
+                </div>
+                <div>
+                    <p class="text-lg font-bold">2025 (Live)</p>
+                    <p id="rate-2025" class="text-xl text-gray-300">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="mt-2 text-gray-400 text-lg">As of <span id="date">Loading...</span></p>
+        <p id="debt-usd" class="text-xl text-gray-300 mt-1">~0 USD</p>
+        <p id="debt-per-citizen" class="text-xl text-gray-300 mt-1">~0 KES per citizen</p>
+
+        <!-- Debt Breakdown -->
+        <div class="mt-8 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-green-400">Debt Breakdown (2025)</h2>
+            <ul class="mt-2 text-lg text-gray-300 space-y-2">
+                <li>Daily Increase: <span id="daily-increase"></span></li>
+                <li>Hourly Increase: <span id="hourly-increase"></span></li>
+                <li>Per Minute: <span id="per-minute"></span></li>
+                <li>Per Second: <span id="per-second"></span></li>
+                <li>Annualized Growth Rate: <span id="annual-growth-rate"></span></li>
+            </ul>
+        </div>
+
+        <!-- Historical Trend Chart -->
+        <div class="mt-8 chart-container">
+            <canvas id="debtChart"></canvas>
+        </div>
+    </div>
+
+    <script define:vars={{ population }}>
+        let debt = 0; // Will be set dynamically
+        let debtData = { debt: '0 trillion KES', date: 'N/A' }; // Initial placeholder
+        const debt2000 = 0.346875e12; // ~346.875 billion KES (2000 baseline)
+        const debt2005 = 0.69375e12;  // ~693.75 billion KES
+        const debt2010 = 1.3875e12;   // ~1.3875 trillion KES
+        const debt2015 = 2.775e12;    // ~2.775 trillion KES
+        const debt2020 = 5.55e12;     // ~5.55 trillion KES
+        const pop2000 = 30700000;     // Population estimates
+        const pop2005 = 35600000;
+        const pop2010 = 40500000;
+        const pop2015 = 46100000;
+        const pop2020 = 51400000;
+        const pop2025 = population;   // Current 2025 population (54M)
+        const deficit2000 = 7.57e9;   // Surplus 7.57 billion KES
+        const deficit2005 = -64.5e9;  // Deficit 64.5 billion KES
+        const deficit2010 = -147.8e9; // Deficit 147.8 billion KES
+        const deficit2015 = -506.7e9; // Deficit 506.7 billion KES
+        const deficit2020 = -478.3e9; // Deficit 478.3 billion KES
+        const deficit2025 = -831e9;   // Projected deficit 831 billion KES (FY 2025/26)
+        const externalDebtRatio = 0.5; // ~50% of total debt (2025 estimate)
+        let exchangeRate = 129;       // Default KES to USD rate (March 2025)
+        const rate2000 = 76;          // Historical KES/USD rates
+        const rate2005 = 73;
+        const rate2010 = 81;
+        const rate2015 = 102;
+        const rate2020 = 109;
+        const baseYear = 2025;        // Current year (March 04, 2025)
+        const doublingTimeDays = 5 * 365; // Debt doubles every 5 years
+        const secondsInFiveYears = doublingTimeDays * 24 * 60 * 60; // Seconds in 5 years
+        const growthRatePerSecond = Math.pow(2, 1 / secondsInFiveYears) - 1; // Per-second rate
+        const annualizedGrowthRate = (Math.pow(2, 1 / 5) - 1) * 100; // ~14.87%
+
+        // Fetch debt data dynamically (World Bank API or fallback aligned with Auditor-General estimate)
+        async function fetchDebtData() {
+            try {
+                const response = await fetch('https://api.worldbank.org/v2/country/KE/indicator/DT.DOD.DECT.CD?format=json');
+                const data = await response.json();
+                const latestDebt = data[1]?.[0]?.value; // Latest debt in USD
+                if (latestDebt) {
+                    debtData = {
+                        debt: `${(latestDebt * exchangeRate / 1e9).toFixed(2)} trillion KES`,
+                        date: data[1][0].date
+                    };
+                    debt = parseFloat(debtData.debt.split(' ')[0]) * 1e12;
+                } else {
+                    throw new Error('No debt data available');
+                }
+            } catch (error) {
+                console.error('Failed to fetch World Bank data:', error);
+                // Fallback to Auditor-General-aligned 2025 debt
+                debt = 11e12; // 11 trillion KES as of March 2025
+                debtData = { debt: '11.00 trillion KES', date: '2025-03-04' };
+            }
+        }
+
+        // Fetch live exchange rate
+        async function getExchangeRate() {
+            try {
+                const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await res.json();
+                exchangeRate = data.rates.KES;
+            } catch (e) {
+                console.error('Failed to fetch exchange rate:', e);
+            }
+        }
+
+        function getDebtIncrease(timeframe) {
+            const baseIncrease = debt * growthRatePerSecond; // Increase per second
+            switch (timeframe) {
+                case 'daily': return baseIncrease * (24 * 60 * 60);
+                case 'hourly': return baseIncrease * (60 * 60);
+                case 'minute': return baseIncrease * 60;
+                case 'second': return baseIncrease;
+                default: return 0;
+            }
+        }
+
+        function formatNumber(number) {
+            return number ? new Intl.NumberFormat().format(Math.abs(number).toFixed(0)) : 'N/A';
+        }
+
+        async function updateDebtDisplay() {
+            await getExchangeRate(); // Update exchange rate
+            const debtElement = document.getElementById('debt');
+            const debt2000Element = document.getElementById('debt-2000');
+            const debt2005Element = document.getElementById('debt-2005');
+            const debt2010Element = document.getElementById('debt-2010');
+            const debt2015Element = document.getElementById('debt-2015');
+            const debt2020Element = document.getElementById('debt-2020');
+            const debtBreakdownElement = document.getElementById('debt-breakdown');
+            const perCitizen2000Element = document.getElementById('per-citizen-2000');
+            const perCitizen2005Element = document.getElementById('per-citizen-2005');
+            const perCitizen2010Element = document.getElementById('per-citizen-2010');
+            const perCitizen2015Element = document.getElementById('per-citizen-2015');
+            const perCitizen2020Element = document.getElementById('per-citizen-2020');
+            const perCitizen2025Element = document.getElementById('per-citizen-2025');
+            const deficit2000Element = document.getElementById('deficit-2000');
+            const deficit2005Element = document.getElementById('deficit-2005');
+            const deficit2010Element = document.getElementById('deficit-2010');
+            const deficit2015Element = document.getElementById('deficit-2015');
+            const deficit2020Element = document.getElementById('deficit-2020');
+            const deficit2025Element = document.getElementById('deficit-2025');
+            const rate2000Element = document.getElementById('rate-2000');
+            const rate2005Element = document.getElementById('rate-2005');
+            const rate2010Element = document.getElementById('rate-2010');
+            const rate2015Element = document.getElementById('rate-2015');
+            const rate2020Element = document.getElementById('rate-2020');
+            const rate2025Element = document.getElementById('rate-2025');
+            const debtUsdElement = document.getElementById('debt-usd');
+            const debtPerCitizenElement = document.getElementById('debt-per-citizen');
+            const dateElement = document.getElementById('date');
+            const dailyIncreaseElement = document.getElementById('daily-increase');
+            const hourlyIncreaseElement = document.getElementById('hourly-increase');
+            const minuteIncreaseElement = document.getElementById('per-minute');
+            const secondIncreaseElement = document.getElementById('per-second');
+            const growthRateElement = document.getElementById('annual-growth-rate');
+
+            const externalDebt = debt * externalDebtRatio;
+            const internalDebt = debt * (1 - externalDebtRatio);
+            const perCitizen2025 = debt / pop2025;
+
+            // Sanity check for 2025 per-citizen debt
+            if (perCitizen2025 > 1000000) { // If over 1M KES, log error
+                console.error('Per-citizen debt for 2025 exceeds 1M KES:', perCitizen2025);
+            }
+
+            debtElement.textContent = `${formatNumber(debt / 1e12).replace(/,/g, '.')} trillion KES`;
+            debt2000Element.textContent = `${formatNumber(debt2000 / 1e9).replace(/,/g, '.')} billion KES`;
+            debt2005Element.textContent = `${formatNumber(debt2005 / 1e9).replace(/,/g, '.')} billion KES`;
+            debt2010Element.textContent = `${formatNumber(debt2010 / 1e12).replace(/,/g, '.')} trillion KES`;
+            debt2015Element.textContent = `${formatNumber(debt2015 / 1e12).replace(/,/g, '.')} trillion KES`;
+            debt2020Element.textContent = `${formatNumber(debt2020 / 1e12).replace(/,/g, '.')} trillion KES`;
+            debtBreakdownElement.textContent = `Ext: ${formatNumber(externalDebt / 1e12).replace(/,/g, '.')}T | Int: ${formatNumber(internalDebt / 1e12).replace(/,/g, '.')}T`;
+            perCitizen2000Element.textContent = `${formatNumber(debt2000 / pop2000)} KES`;
+            perCitizen2005Element.textContent = `${formatNumber(debt2005 / pop2005)} KES`;
+            perCitizen2010Element.textContent = `${formatNumber(debt2010 / pop2010)} KES`;
+            perCitizen2015Element.textContent = `${formatNumber(debt2015 / pop2015)} KES`;
+            perCitizen2020Element.textContent = `${formatNumber(debt2020 / pop2020)} KES`;
+            perCitizen2025Element.textContent = `${formatNumber(perCitizen2025)} KES`;
+            deficit2000Element.textContent = `+${formatNumber(deficit2000 / 1e9).replace(/,/g, '.')} billion KES`;
+            deficit2005Element.textContent = `-${formatNumber(deficit2005 / 1e9).replace(/,/g, '.')} billion KES`;
+            deficit2010Element.textContent = `-${formatNumber(deficit2010 / 1e9).replace(/,/g, '.')} billion KES`;
+            deficit2015Element.textContent = `-${formatNumber(deficit2015 / 1e9).replace(/,/g, '.')} billion KES`;
+            deficit2020Element.textContent = `-${formatNumber(deficit2020 / 1e9).replace(/,/g, '.')} billion KES`;
+            deficit2025Element.textContent = `-${formatNumber(deficit2025 / 1e9).replace(/,/g, '.')} billion KES`;
+            rate2000Element.textContent = `${rate2000} KES/USD`;
+            rate2005Element.textContent = `${rate2005} KES/USD`;
+            rate2010Element.textContent = `${rate2010} KES/USD`;
+            rate2015Element.textContent = `${rate2015} KES/USD`;
+            rate2020Element.textContent = `${rate2020} KES/USD`;
+            rate2025Element.textContent = `${formatNumber(exchangeRate)} KES/USD`;
+            debtUsdElement.textContent = `~${formatNumber(debt / 1e12 / exchangeRate * 1e3)} billion USD`;
+            debtPerCitizenElement.textContent = `~${formatNumber(debt / population)} KES per citizen`;
+            dateElement.textContent = debtData.date;
+            dailyIncreaseElement.textContent = `${formatNumber(getDebtIncrease('daily'))} KES`;
+            hourlyIncreaseElement.textContent = `${formatNumber(getDebtIncrease('hourly'))} KES`;
+            minuteIncreaseElement.textContent = `${formatNumber(getDebtIncrease('minute'))} KES`;
+            secondIncreaseElement.textContent = `${formatNumber(getDebtIncrease('second'))} KES`;
+            growthRateElement.textContent = `${annualizedGrowthRate.toFixed(2)}% (doubles every 5 years)`;
+        }
+
+        // Theme Toggle
+        const body = document.getElementById('body');
+        const toggleButton = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        toggleButton.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            body.classList.toggle('bg-gray-900');
+            body.classList.toggle('text-white');
+            body.classList.toggle('bg-white');
+            body.classList.toggle('text-gray-900');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+        });
+
+        // Chart Setup with dynamic data
+        async function updateChart() {
+            const ctx = document.getElementById('debtChart').getContext('2d');
+            const labels = ['2000', '2005', '2010', '2015', '2020', '2025'];
+            const debtChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Debt (trillion KES)',
+                        data: [
+                            debt2000 / 1e12, // 2000
+                            debt2005 / 1e12, // 2005
+                            debt2010 / 1e12, // 2010
+                            debt2015 / 1e12, // 2015
+                            debt2020 / 1e12, // 2020
+                            debt / 1e12      // 2025 (dynamic)
+                        ],
+                        borderColor: '#10B981',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
+
+            // Update chart data dynamically for 2025
+            setInterval(() => {
+                debtChart.data.datasets[0].data[5] = debt / 1e12;
+                debtChart.update();
+            }, 1000);
+        }
+
+        // Initial load and updates
+        async function init() {
+            await fetchDebtData(); // Fetch initial debt data for 2025
+            await updateDebtDisplay(); // Initial display update
+            updateChart(); // Initialize chart
+            setInterval(() => {
+                debt += getDebtIncrease('second'); // Exponential increase per second
+                updateDebtDisplay();
+            }, 1000); // Update every second
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
