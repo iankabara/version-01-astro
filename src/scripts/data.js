@@ -96,6 +96,5 @@ export async function fetchExchangeRate() {
         console.log("Exchange Rate API Response:", exchangeRate);
     } catch (e) {
         console.error('Failed to fetch exchange rate, using fallback:', e);
-        exchangeRate = 132;
     }
 }
