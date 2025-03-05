@@ -1,8 +1,8 @@
 import Chart from 'chart.js/auto';
 
 // Debt Logic
-let debt = 0;
-let debtData = { debt: '0 trillion KES', date: '' };
+let debt = 11e12; // Start with BASE_DEBT immediately
+let debtData = { debt: '11.00 trillion KES', date: new Date().toISOString().split('T')[0] }; // Initial approximate value
 const BASE_DEBT = 11e12; // Constant: 11T KES (~83.33B USD at 132 KES/USD) for March 05, 2025
 const debt2000 = 0.346875e12;
 const debt2005 = 0.69375e12;
@@ -34,21 +34,29 @@ const dailyGrowthRate = annualGrowthRate / 365; // ~0.0137% daily
 async function fetchDebtData() {
     try {
         const response = await fetch('https://api.worldbank.org/v2/country/KE/indicator/DT.DOD.DECT.CD?format=json');
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
         const data = await response.json();
+        console.log("World Bank API Response:", data);
+
         const latestDebt = data[1]?.[0]?.value; // Debt in USD (millions)
         const latestDate = data[1]?.[0]?.date;
-        console.log("World Bank API Response:", data);
-        if (latestDebt && latestDate && latestDate === '2025') {
+
+        console.log("Latest Debt (M USD):", latestDebt);
+        console.log("Latest Date:", latestDate);
+
+        if (latestDebt && latestDate && latestDate === '2025' && typeof latestDebt === 'number' && !isNaN(latestDebt)) {
             const debtInKES = latestDebt * exchangeRate * 1e6; // Convert M USD to KES
             debt = Math.min(debtInKES, 15e12); // Cap at 15T KES
             debtData = { debt: `${(debt / 1e12).toFixed(2)} trillion KES`, date: latestDate };
+            console.log("Updated with API data:", debtData);
+            await updateDebtDisplay(); // Update UI with API data
         } else {
-            throw new Error('API data not from 2025');
+            console.log("API data not from 2025, retaining approximate value");
         }
     } catch (error) {
-        console.error('Using approximate debt figure:', error);
-        debt = BASE_DEBT; // Use constant 11T KES
-        debtData = { debt: `${(debt / 1e12).toFixed(2)} trillion KES`, date: new Date().toISOString().split('T')[0] }; // 2025-03-05
+        console.error('API fetch failed, retaining approximate debt:', error.message);
     }
 }
 
@@ -84,9 +92,8 @@ async function updateDebtDisplay() {
     const externalDebt = debt * externalDebtRatio;
     const internalDebt = debt * (1 - externalDebtRatio);
     const perCitizen2025 = debt / pop2025;
-    const currentDate = debtData.date; // Always 2025-03-05 unless API gives 2025
+    const currentDate = debtData.date;
 
-    // Validation: Reset debt if it exceeds 20T KES
     if (debt > 20e12) {
         console.warn('Debt exceeded 20T KES, resetting to base');
         debt = BASE_DEBT;
@@ -253,10 +260,13 @@ function setupChart() {
 
 // Initialize Everything
 async function init() {
-    await fetchDebtData();
-    await updateDebtDisplay();
+    // Show approximate value immediately
+    updateDebtDisplay(); // Synchronous initial render with BASE_DEBT
     setupThemeToggle();
     setupChart();
+
+    // Fetch API data asynchronously after initial render
+    await fetchDebtData();
 
     setInterval(() => {
         debt += getDebtIncrease('daily');
