@@ -1,0 +1,42 @@
+---
+---
+
+<div class="mt-8 chart-container">
+    <canvas id="debtChart"></canvas>
+</div>
+
+<script>
+    import { debt, debt2000, debt2005, debt2010, debt2015, debt2020 } from '../scripts/debtLogic.js';
+
+    const ctx = document.getElementById('debtChart').getContext('2d');
+    const labels = ['2000', '2005', '2010', '2015', '2020', '2025'];
+    const debtChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Total Debt (trillion KES)',
+                data: [
+                    debt2000 / 1e12,
+                    debt2005 / 1e12,
+                    debt2010 / 1e12,
+                    debt2015 / 1e12,
+                    debt2020 / 1e12,
+                    debt / 1e12
+                ],
+                borderColor: '#10B981',
+                fill: false,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: false } }
+        }
+    });
+
+    setInterval(() => {
+        debtChart.data.datasets[0].data[5] = debt / 1e12;
+        debtChart.update();
+    }, 1000);
+</script>
