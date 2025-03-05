@@ -17,6 +17,7 @@ import '../styles/global.css';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kenya Debt Clock (Astro)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 </head>
 <body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-6 transition-colors duration-300 dark:bg-gray-900 dark:text-white" id="body">
     <div class="text-center w-full max-w-4xl">
@@ -30,7 +31,6 @@ import '../styles/global.css';
         <DebtBreakdown />
         <DebtChart />
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module" src="/src/scripts/debtLogic.js"></script>
+    <script type="module" src="/src/scripts/client.js"></script>
 </body>
 </html>

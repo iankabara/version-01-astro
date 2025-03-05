@@ -1,13 +1,42 @@
 ---
 ---
 
-<div class="mt-8 bg-gray-800 p-4 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold text-green-400">Debt Breakdown (2025)</h2>
-    <ul class="mt-2 text-lg text-gray-300 space-y-2">
-        <li>Daily Increase: <span id="daily-increase">Loading...</span></li>
-        <li>Hourly Increase: <span id="hourly-increase">Loading...</span></li>
-        <li>Per Minute: <span id="per-minute">Loading...</span></li>
-        <li>Per Second: <span id="per-second">Loading...</span></li>
-        <li>Annualized Growth Rate: <span id="annual-growth-rate">Loading...</span></li>
+<div class="mb-10 bg-gray-800 p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
+    <h2 class="text-3xl font-semibold text-green-400 mb-6">Debt Breakdown (2025)</h2>
+    <ul class="text-lg text-gray-300 space-y-4">
+        <li class="flex justify-between">
+            <span class="font-medium">Daily Increase:</span>
+            <span id="daily-increase" class="text-green-400 animate-pulse">Loading...</span>
+        </li>
+        <li class="flex justify-between">
+            <span class="font-medium">Hourly Increase:</span>
+            <span id="hourly-increase" class="text-green-400 animate-pulse">Loading...</span>
+        </li>
+        <li class="flex justify-between">
+            <span class="font-medium">Per Minute:</span>
+            <span id="per-minute" class="text-green-400 animate-pulse">Loading...</span>
+        </li>
+        <li class="flex justify-between">
+            <span class="font-medium">Per Second:</span>
+            <span id="per-second" class="text-green-400 animate-pulse">Loading...</span>
+        </li>
+        <li class="flex justify-between">
+            <span class="font-medium">Annual Growth Rate:</span>
+            <span id="annual-growth-rate" class="text-green-400 animate-pulse">Loading...</span>
+        </li>
     </ul>
 </div>
+
+<style>
+    li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    li:last-child {
+        border-bottom: none;
+    }
+    span.text-green-400 {
+        font-mono: true;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+</style>
