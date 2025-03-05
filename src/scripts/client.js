@@ -22,7 +22,7 @@ const deficit2015 = -506.7e9;
 const deficit2020 = -478.3e9;
 const deficit2025 = -831e9;
 const externalDebtRatio = 0.5;
-let exchangeRate = 132; // March 2025 estimate
+let exchangeRate = 132; // Initial March 2025 estimate
 const rate2000 = 76;
 const rate2005 = 73;
 const rate2010 = 81;
@@ -31,35 +31,6 @@ const rate2020 = 109;
 const annualGrowthRate = 0.05; // 5% annual growth
 const dailyGrowthRate = annualGrowthRate / 365; // ~0.0137% daily
 
-async function fetchDebtData() {
-    try {
-        const response = await fetch('https://api.worldbank.org/v2/country/KE/indicator/DT.DOD.DECT.CD?format=json');
-        if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("World Bank API Response:", data);
-
-        const latestDebt = data[1]?.[0]?.value; // Debt in USD (millions)
-        const latestDate = data[1]?.[0]?.date;
-
-        console.log("Latest Debt (M USD):", latestDebt);
-        console.log("Latest Date:", latestDate);
-
-        if (latestDebt && latestDate && latestDate === '2025' && typeof latestDebt === 'number' && !isNaN(latestDebt)) {
-            const debtInKES = latestDebt * exchangeRate * 1e6; // Convert M USD to KES
-            debt = Math.min(debtInKES, 15e12); // Cap at 15T KES
-            debtData = { debt: `${(debt / 1e12).toFixed(2)} trillion KES`, date: latestDate };
-            console.log("Updated with API data:", debtData);
-            await updateDebtDisplay(); // Update UI with API data
-        } else {
-            console.log("API data not from 2025, retaining approximate value");
-        }
-    } catch (error) {
-        console.error('API fetch failed, retaining approximate debt:', error.message);
-    }
-}
-
 async function getExchangeRate() {
     try {
         const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
@@ -67,8 +38,8 @@ async function getExchangeRate() {
         exchangeRate = data.rates.KES;
         console.log("Exchange Rate API Response:", exchangeRate);
     } catch (e) {
-        console.error('Failed to fetch exchange rate:', e);
-        exchangeRate = 132;
+        console.error('Failed to fetch exchange rate, using fallback:', e);
+        exchangeRate = 132; // Fallback to 132 KES/USD
     }
 }
 
@@ -88,11 +59,11 @@ function formatNumber(number) {
 }
 
 async function updateDebtDisplay() {
-    await getExchangeRate();
+    await getExchangeRate(); // Update exchange rate dynamically
     const externalDebt = debt * externalDebtRatio;
     const internalDebt = debt * (1 - externalDebtRatio);
     const perCitizen2025 = debt / pop2025;
-    const currentDate = debtData.date;
+    const currentDate = new Date().toISOString().split('T')[0]; // Always current date
 
     if (debt > 20e12) {
         console.warn('Debt exceeded 20T KES, resetting to base');
@@ -260,18 +231,17 @@ function setupChart() {
 
 // Initialize Everything
 async function init() {
-    // Show approximate value immediately
-    updateDebtDisplay(); // Synchronous initial render with BASE_DEBT
+    updateDebtDisplay(); // Show approximate value immediately
     setupThemeToggle();
     setupChart();
-
-    // Fetch API data asynchronously after initial render
-    await fetchDebtData();
 
     setInterval(() => {
         debt += getDebtIncrease('daily');
         updateDebtDisplay();
-    }, 24 * 60 * 60 * 1000); // Update daily
+    }, 24 * 60 * 60 * 1000); // Update debt daily
+
+    // Optional: Update exchange rate hourly for dynamic USD values
+    setInterval(updateDebtDisplay, 60 * 60 * 1000);
 }
 
 // Run initialization
