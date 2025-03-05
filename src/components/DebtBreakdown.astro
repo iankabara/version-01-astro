@@ -1,4 +1,6 @@
 ---
+import { formatNumber } from '../scripts/debtLogic.js';
+import { getDebtByYear, dailyGrowthRate, annualGrowthRate } from '../scripts/data.js';
 ---
 
 <div class="mb-10 bg-gray-800 p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
@@ -6,23 +8,23 @@
     <ul class="text-lg text-gray-300 space-y-4">
         <li class="flex justify-between">
             <span class="font-medium">Daily Increase:</span>
-            <span id="daily-increase" class="text-green-400 animate-pulse">Loading...</span>
+            <span id="daily-increase" class="text-green-400">{formatNumber(getDebtByYear(2024) * dailyGrowthRate)} KES</span>
         </li>
         <li class="flex justify-between">
             <span class="font-medium">Hourly Increase:</span>
-            <span id="hourly-increase" class="text-green-400 animate-pulse">Loading...</span>
+            <span id="hourly-increase" class="text-green-400">{formatNumber(getDebtByYear(2024) * dailyGrowthRate / 24)} KES</span>
         </li>
         <li class="flex justify-between">
             <span class="font-medium">Per Minute:</span>
-            <span id="per-minute" class="text-green-400 animate-pulse">Loading...</span>
+            <span id="per-minute" class="text-green-400">{formatNumber(getDebtByYear(2024) * dailyGrowthRate / (24 * 60))} KES</span>
         </li>
         <li class="flex justify-between">
             <span class="font-medium">Per Second:</span>
-            <span id="per-second" class="text-green-400 animate-pulse">Loading...</span>
+            <span id="per-second" class="text-green-400">{formatNumber(getDebtByYear(2024) * dailyGrowthRate / (24 * 60 * 60))} KES</span>
         </li>
         <li class="flex justify-between">
             <span class="font-medium">Annual Growth Rate:</span>
-            <span id="annual-growth-rate" class="text-green-400 animate-pulse">Loading...</span>
+            <span id="annual-growth-rate" class="text-green-400">{(annualGrowthRate * 100).toFixed(2)}% (projected annual growth)</span>
         </li>
     </ul>
 </div>
@@ -36,7 +38,7 @@
         border-bottom: none;
     }
     span.text-green-400 {
-        font-mono: true;
+        font-family: monospace;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 </style>
