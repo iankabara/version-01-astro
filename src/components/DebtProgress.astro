@@ -1,5 +1,6 @@
 ---
 import { formatNumber } from '../scripts/debtLogic.js';
+import { getDebtByYear } from '../scripts/data.js';
 ---
 
 <div class="mb-10 bg-gray-800 p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
@@ -7,39 +8,33 @@ import { formatNumber } from '../scripts/debtLogic.js';
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2000</p>
-            <p id="debt-2000" class="text-xl text-gray-300">{formatNumber(0.346875e12 / 1e9)} billion KES</p>
-            <p class="text-sm text-gray-400">Ext: 173.44B | Int: 173.44B</p>
+            <p id="debt-2000" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2000) / 1e9)} billion KES</p>
+            <p class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2000) * 0.5 / 1e9)}B | Int: {formatNumber(getDebtByYear(2000) * 0.5 / 1e9)}B</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2005</p>
-            <p id="debt-2005" class="text-xl text-gray-300">{formatNumber(0.69375e12 / 1e9)} billion KES</p>
-            <p class="text-sm text-gray-400">Ext: 346.88B | Int: 346.88B</p>
+            <p id="debt-2005" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2005) / 1e9)} billion KES</p>
+            <p class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2005) * 0.5 / 1e9)}B | Int: {formatNumber(getDebtByYear(2005) * 0.5 / 1e9)}B</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2010</p>
-            <p id="debt-2010" class="text-xl text-gray-300">{formatNumber(1.3875e12 / 1e12)} trillion KES</p>
-            <p class="text-sm text-gray-400">Ext: 0.69T | Int: 0.69T</p>
+            <p id="debt-2010" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2010) / 1e12)} trillion KES</p>
+            <p class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2010) * 0.5 / 1e12)}T | Int: {formatNumber(getDebtByYear(2010) * 0.5 / 1e12)}T</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2015</p>
-            <p id="debt-2015" class="text-xl text-gray-300">{formatNumber(2.775e12 / 1e12)} trillion KES</p>
-            <p class="text-sm text-gray-400">Ext: 1.39T | Int: 1.39T</p>
+            <p id="debt-2015" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2015) / 1e12)} trillion KES</p>
+            <p class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2015) * 0.5 / 1e12)}T | Int: {formatNumber(getDebtByYear(2015) * 0.5 / 1e12)}T</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2020</p>
-            <p id="debt-2020" class="text-xl text-gray-300">{formatNumber(5.55e12 / 1e12)} trillion KES</p>
-            <p class="text-sm text-gray-400">Ext: 2.78T | Int: 2.78T</p>
+            <p id="debt-2020" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2020) / 1e12)} trillion KES</p>
+            <p class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2020) * 0.5 / 1e12)}T | Int: {formatNumber(getDebtByYear(2020) * 0.5 / 1e12)}T</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow relative">
             <p class="text-lg font-bold text-gray-200">2025 (Live)</p>
-            <p id="debt" class="text-xl font-mono animate-debt text-gray-300">Loading...</p>
-            <p id="debt-breakdown" class="text-sm text-gray-400">Ext: Loading... | Int: Loading...</p>
-            <span id="debt-loading" class="absolute inset-0 flex items-center justify-center text-gray-500 opacity-100 transition-opacity">
-                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-            </span>
+            <p id="debt" class="text-xl font-mono text-gray-300">{formatNumber(getDebtByYear(2024) / 1e12)} trillion KES</p>
+            <p id="debt-breakdown" class="text-sm text-gray-400">Ext: {formatNumber(getDebtByYear(2024) * 0.5 / 1e12)}T | Int: {formatNumber(getDebtByYear(2024) * 0.5 / 1e12)}T</p>
         </div>
     </div>
 </div>

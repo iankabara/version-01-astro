@@ -1,12 +1,14 @@
 ---
+import { formatNumber } from '../scripts/debtLogic.js';
+import { getDebtByYear, getPopulationByYear } from '../scripts/data.js';
 ---
 
 <div class="mb-10 text-center animate__animated animate__fadeInUp">
     <p class="text-lg text-gray-400 mb-2">
-        As of <span id="date" class="font-semibold text-gray-300 animate-pulse">Loading...</span>
+        As of <span id="date" class="font-semibold text-gray-300">{new Date().toISOString().split('T')[0]}</span>
     </p>
-    <p id="debt-usd" class="text-2xl font-bold text-gray-200 mb-2 animate-pulse">~0 billion USD</p>
-    <p id="debt-per-citizen" class="text-2xl font-bold text-gray-200 animate-pulse">~0 KES per citizen</p>
+    <p id="debt-usd" class="text-2xl font-bold text-gray-200">{formatNumber(getDebtByYear(2024) / 132 / 1e9)} billion USD</p>
+    <p id="debt-per-citizen" class="text-2xl font-bold text-gray-200">{formatNumber(getDebtByYear(2024) / getPopulationByYear(2025))} KES per citizen</p>
 </div>
 
 <style>
@@ -14,7 +16,7 @@
         line-height: 1.5;
     }
     #debt-usd, #debt-per-citizen {
-        color: #10B981; /* Green for emphasis */
+        color: #10B981;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
 </style>

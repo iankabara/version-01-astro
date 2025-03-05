@@ -1,5 +1,6 @@
 ---
 import { formatNumber } from '../scripts/debtLogic.js';
+import { getDeficitByYear } from '../scripts/data.js';
 ---
 
 <div class="mb-10 bg-gray-800 p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
@@ -7,27 +8,27 @@ import { formatNumber } from '../scripts/debtLogic.js';
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2000</p>
-            <p id="deficit-2000" class="text-xl text-green-400">+{formatNumber(7.57e9 / 1e9)} billion KES</p>
+            <p id="deficit-2000" class="text-xl text-green-400">+{formatNumber(getDeficitByYear(2000) / 1e9)} billion KES</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2005</p>
-            <p id="deficit-2005" class="text-xl text-red-400">-{formatNumber(64.5e9 / 1e9)} billion KES</p>
+            <p id="deficit-2005" class="text-xl text-red-400">-{formatNumber(Math.abs(getDeficitByYear(2005)) / 1e9)} billion KES</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2010</p>
-            <p id="deficit-2010" class="text-xl text-red-400">-{formatNumber(147.8e9 / 1e9)} billion KES</p>
+            <p id="deficit-2010" class="text-xl text-red-400">-{formatNumber(Math.abs(getDeficitByYear(2010)) / 1e9)} billion KES</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2015</p>
-            <p id="deficit-2015" class="text-xl text-red-400">-{formatNumber(506.7e9 / 1e9)} billion KES</p>
+            <p id="deficit-2015" class="text-xl text-red-400">-{formatNumber(Math.abs(getDeficitByYear(2015)) / 1e9)} billion KES</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2020</p>
-            <p id="deficit-2020" class="text-xl text-red-400">-{formatNumber(478.3e9 / 1e9)} billion KES</p>
+            <p id="deficit-2020" class="text-xl text-red-400">-{formatNumber(Math.abs(getDeficitByYear(2020)) / 1e9)} billion KES</p>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow">
             <p class="text-lg font-bold text-gray-200">2025 (Projected)</p>
-            <p id="deficit-2025" class="text-xl text-red-400">-{formatNumber(831e9 / 1e9)} billion KES</p>
+            <p id="deficit-2025" class="text-xl text-red-400">-{formatNumber(Math.abs(getDeficitByYear(2025)) / 1e9)} billion KES</p>
         </div>
     </div>
 </div>

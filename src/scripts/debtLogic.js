@@ -1,84 +1,40 @@
-export let debt = 0;
-export let debtData = { debt: '0 trillion KES', date: '' };
-export const debt2000 = 0.346875e12;
-export const debt2005 = 0.69375e12;
-export const debt2010 = 1.3875e12;
-export const debt2015 = 2.775e12;
-export const debt2020 = 5.55e12;
-export const pop2000 = 30700000;
-export const pop2005 = 35600000;
-export const pop2010 = 40500000;
-export const pop2015 = 46100000;
-export const pop2020 = 51400000;
-export const pop2025 = 55000000;
-export const deficit2000 = 7.57e9;
-export const deficit2005 = -64.5e9;
-export const deficit2010 = -147.8e9;
-export const deficit2015 = -506.7e9;
-export const deficit2020 = -478.3e9;
-export const deficit2025 = -831e9;
-export const externalDebtRatio = 0.5;
-export let exchangeRate = 129;
-export const rate2000 = 76;
-export const rate2005 = 73;
-export const rate2010 = 81;
-export const rate2015 = 102;
-export const rate2020 = 109;
-export const annualGrowthRate = 0.05;
-export const secondsInYear = 365 * 24 * 60 * 60;
-export const growthRatePerSecond = annualGrowthRate / secondsInYear;
+import { 
+    getDebt, setDebt, getDebtData, setDebtData, getExchangeRate, fetchExchangeRate,
+    externalDebtRatio, dailyGrowthRate, annualGrowthRate, getDebtByYear,
+    getPopulationByYear, getDeficitByYear, getExchangeRateByYear
+} from './data.js';
 
-export async function fetchDebtData() {
-    try {
-        const response = await fetch('https://api.worldbank.org/v2/country/KE/indicator/DT.DOD.DECT.CD?format=json');
-        const data = await response.json();
-        const latestDebt = data[1]?.[0]?.value;
-        console.log("World Bank API Response:", data);
-        if (latestDebt) {
-            debtData = { debt: `${(latestDebt * exchangeRate / 1e9).toFixed(2)} trillion KES`, date: data[1][0].date };
-            debt = parseFloat(debtData.debt.split(' ')[0]) * 1e12;
-        } else {
-            throw new Error('No debt data available');
-        }
-    } catch (error) {
-        console.error('Failed to fetch World Bank data:', error);
-        debt = 11e12;
-        debtData = { debt: '11.00 trillion KES', date: '2025-03-04' };
-    }
-}
-
-export async function getExchangeRate() {
-    try {
-        const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const data = await res.json();
-        exchangeRate = data.rates.KES;
-        console.log("Exchange Rate API Response:", exchangeRate);
-    } catch (e) {
-        console.error('Failed to fetch exchange rate:', e);
-        exchangeRate = 129;
-    }
-}
-
+// Debt increase calculations
 export function getDebtIncrease(timeframe) {
-    const baseIncrease = debt * growthRatePerSecond;
+    const dailyIncrease = getDebt() * dailyGrowthRate;
     switch (timeframe) {
-        case 'daily': return baseIncrease * (24 * 60 * 60);
-        case 'hourly': return baseIncrease * (60 * 60);
-        case 'minute': return baseIncrease * 60;
-        case 'second': return baseIncrease;
+        case 'daily': return dailyIncrease;
+        case 'hourly': return dailyIncrease / 24;
+        case 'minute': return dailyIncrease / (24 * 60);
+        case 'second': return dailyIncrease / (24 * 60 * 60);
         default: return 0;
     }
 }
 
+// Number formatting
 export function formatNumber(number) {
-    return number ? new Intl.NumberFormat('en-US').format(Math.abs(number).toFixed(0)) : 'N/A';
+    return number ? new Intl.NumberFormat('en-US').format(Math.abs(number).toFixed(2)) : 'N/A';
 }
 
+// Update debt display
 export async function updateDebtDisplay() {
-    await getExchangeRate();
+    await fetchExchangeRate(); // Update exchange rate dynamically
+    const debt = getDebt();
     const externalDebt = debt * externalDebtRatio;
     const internalDebt = debt * (1 - externalDebtRatio);
-    const perCitizen2025 = debt / pop2025;
+    const perCitizen2025 = debt / getPopulationByYear(2025);
+    const currentDate = getDebtData().date;
+
+    if (debt > 20e12) {
+        console.warn('Debt exceeded 20T KES, resetting to 2024 base');
+        setDebt(getDebtByYear(2024));
+        setDebtData({ debt: `${(getDebt() / 1e12).toFixed(2)} trillion KES`, date: new Date().toISOString().split('T')[0] });
+    }
 
     if (perCitizen2025 > 1000000) console.error('Per-citizen debt for 2025 exceeds 1M KES:', perCitizen2025);
 
@@ -117,45 +73,73 @@ export async function updateDebtDisplay() {
     const growthRateEl = document.getElementById('annual-growth-rate');
 
     if (debtEl) debtEl.textContent = `${formatNumber(debt / 1e12)} trillion KES`;
-    if (debt2000El) debt2000El.textContent = `${formatNumber(debt2000 / 1e9)} billion KES`;
-    if (debt2005El) debt2005El.textContent = `${formatNumber(debt2005 / 1e9)} billion KES`;
-    if (debt2010El) debt2010El.textContent = `${formatNumber(debt2010 / 1e12)} trillion KES`;
-    if (debt2015El) debt2015El.textContent = `${formatNumber(debt2015 / 1e12)} trillion KES`;
-    if (debt2020El) debt2020El.textContent = `${formatNumber(debt2020 / 1e12)} trillion KES`;
+    if (debt2000El) debt2000El.textContent = `${formatNumber(getDebtByYear(2000) / 1e9)} billion KES`;
+    if (debt2005El) debt2005El.textContent = `${formatNumber(getDebtByYear(2005) / 1e9)} billion KES`;
+    if (debt2010El) debt2010El.textContent = `${formatNumber(getDebtByYear(2010) / 1e12)} trillion KES`;
+    if (debt2015El) debt2015El.textContent = `${formatNumber(getDebtByYear(2015) / 1e12)} trillion KES`;
+    if (debt2020El) debt2020El.textContent = `${formatNumber(getDebtByYear(2020) / 1e12)} trillion KES`;
     if (debtBreakdownEl) debtBreakdownEl.textContent = `Ext: ${formatNumber(externalDebt / 1e12)}T | Int: ${formatNumber(internalDebt / 1e12)}T`;
-    if (perCitizen2000El) perCitizen2000El.textContent = `${formatNumber(debt2000 / pop2000)} KES`;
-    if (perCitizen2005El) perCitizen2005El.textContent = `${formatNumber(debt2005 / pop2005)} KES`;
-    if (perCitizen2010El) perCitizen2010El.textContent = `${formatNumber(debt2010 / pop2010)} KES`;
-    if (perCitizen2015El) perCitizen2015El.textContent = `${formatNumber(debt2015 / pop2015)} KES`;
-    if (perCitizen2020El) perCitizen2020El.textContent = `${formatNumber(debt2020 / pop2020)} KES`;
+    if (perCitizen2000El) perCitizen2000El.textContent = `${formatNumber(getDebtByYear(2000) / getPopulationByYear(2000))} KES`;
+    if (perCitizen2005El) perCitizen2005El.textContent = `${formatNumber(getDebtByYear(2005) / getPopulationByYear(2005))} KES`;
+    if (perCitizen2010El) perCitizen2010El.textContent = `${formatNumber(getDebtByYear(2010) / getPopulationByYear(2010))} KES`;
+    if (perCitizen2015El) perCitizen2015El.textContent = `${formatNumber(getDebtByYear(2015) / getPopulationByYear(2015))} KES`;
+    if (perCitizen2020El) perCitizen2020El.textContent = `${formatNumber(getDebtByYear(2020) / getPopulationByYear(2020))} KES`;
     if (perCitizen2025El) perCitizen2025El.textContent = `${formatNumber(perCitizen2025)} KES`;
-    if (deficit2000El) deficit2000El.textContent = `+${formatNumber(deficit2000 / 1e9)} billion KES`;
-    if (deficit2005El) deficit2005El.textContent = `-${formatNumber(deficit2005 / 1e9)} billion KES`;
-    if (deficit2010El) deficit2010El.textContent = `-${formatNumber(deficit2010 / 1e9)} billion KES`;
-    if (deficit2015El) deficit2015El.textContent = `-${formatNumber(deficit2015 / 1e9)} billion KES`;
-    if (deficit2020El) deficit2020El.textContent = `-${formatNumber(deficit2020 / 1e9)} billion KES`;
-    if (deficit2025El) deficit2025El.textContent = `-${formatNumber(deficit2025 / 1e9)} billion KES`;
-    if (rate2000El) rate2000El.textContent = `${rate2000} KES/USD`;
-    if (rate2005El) rate2005El.textContent = `${rate2005} KES/USD`;
-    if (rate2010El) rate2010El.textContent = `${rate2010} KES/USD`;
-    if (rate2015El) rate2015El.textContent = `${rate2015} KES/USD`;
-    if (rate2020El) rate2020El.textContent = `${rate2020} KES/USD`;
-    if (rate2025El) rate2025El.textContent = `${formatNumber(exchangeRate)} KES/USD`;
-    if (debtUsdEl) debtUsdEl.textContent = `~${formatNumber(debt / exchangeRate / 1e9)} billion USD`;
-    if (debtPerCitizenEl) debtPerCitizenEl.textContent = `~${formatNumber(debt / pop2025)} KES per citizen`;
-    if (dateEl) dateEl.textContent = debtData.date;
+    if (deficit2000El) deficit2000El.textContent = `+${formatNumber(getDeficitByYear(2000) / 1e9)} billion KES`;
+    if (deficit2005El) deficit2005El.textContent = `-${formatNumber(Math.abs(getDeficitByYear(2005)) / 1e9)} billion KES`;
+    if (deficit2010El) deficit2010El.textContent = `-${formatNumber(Math.abs(getDeficitByYear(2010)) / 1e9)} billion KES`;
+    if (deficit2015El) deficit2015El.textContent = `-${formatNumber(Math.abs(getDeficitByYear(2015)) / 1e9)} billion KES`;
+    if (deficit2020El) deficit2020El.textContent = `-${formatNumber(Math.abs(getDeficitByYear(2020)) / 1e9)} billion KES`;
+    if (deficit2025El) deficit2025El.textContent = `-${formatNumber(Math.abs(getDeficitByYear(2025)) / 1e9)} billion KES`;
+    if (rate2000El) rate2000El.textContent = `${getExchangeRateByYear(2000)} KES/USD`;
+    if (rate2005El) rate2005El.textContent = `${getExchangeRateByYear(2005)} KES/USD`;
+    if (rate2010El) rate2010El.textContent = `${getExchangeRateByYear(2010)} KES/USD`;
+    if (rate2015El) rate2015El.textContent = `${getExchangeRateByYear(2015)} KES/USD`;
+    if (rate2020El) rate2020El.textContent = `${getExchangeRateByYear(2020)} KES/USD`;
+    if (rate2025El) rate2025El.textContent = `${formatNumber(getExchangeRate())} KES/USD`;
+    if (debtUsdEl) debtUsdEl.textContent = `~${formatNumber(debt / getExchangeRate() / 1e9)} billion USD`;
+    if (debtPerCitizenEl) debtPerCitizenEl.textContent = `~${formatNumber(perCitizen2025)} KES per citizen`;
+    if (dateEl) dateEl.textContent = currentDate;
     if (dailyIncreaseEl) dailyIncreaseEl.textContent = `${formatNumber(getDebtIncrease('daily'))} KES`;
     if (hourlyIncreaseEl) hourlyIncreaseEl.textContent = `${formatNumber(getDebtIncrease('hourly'))} KES`;
     if (minuteIncreaseEl) minuteIncreaseEl.textContent = `${formatNumber(getDebtIncrease('minute'))} KES`;
     if (secondIncreaseEl) secondIncreaseEl.textContent = `${formatNumber(getDebtIncrease('second'))} KES`;
     if (growthRateEl) growthRateEl.textContent = `${(annualGrowthRate * 100).toFixed(2)}% (projected annual growth)`;
+
+    // Remove loading animations
+    const loadingElements = ['debt-loading', 'per-citizen-loading', 'rate-loading'];
+    loadingElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('opacity-0');
+            setTimeout(() => el.classList.add('hidden'), 300);
+        }
+    });
+    const pulsingElements = ['debt', 'per-citizen-2025', 'rate-2025', 'date', 'debt-usd', 'debt-per-citizen', 'daily-increase', 'hourly-increase', 'per-minute', 'per-second', 'annual-growth-rate'];
+    pulsingElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('animate-pulse');
+    });
 }
 
-export async function init() {
-    await fetchDebtData();
-    await updateDebtDisplay();
-    setInterval(() => {
-        debt += getDebtIncrease('second');
-        updateDebtDisplay();
-    }, 1000);
+// Theme toggle logic
+export function setupThemeToggle() {
+    const body = document.getElementById('body');
+    const toggleButton = document.getElementById('theme-toggle-btn');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    if (body && toggleButton && sunIcon && moonIcon) {
+        toggleButton.addEventListener('click', () => {
+            body.classList.toggle('dark');
+            body.classList.toggle('bg-gray-900');
+            body.classList.toggle('text-white');
+            body.classList.toggle('bg-white');
+            body.classList.toggle('text-gray-900');
+            sunIcon.classList.toggle('hidden');
+            moonIcon.classList.toggle('hidden');
+        });
+    } else {
+        console.error('Theme toggle elements not found in DOM');
+    }
 }

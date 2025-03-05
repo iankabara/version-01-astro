@@ -1,5 +1,6 @@
 ---
 import { formatNumber } from '../scripts/debtLogic.js';
+import { getDebtByYear, getPopulationByYear } from '../scripts/data.js';
 ---
 
 <div class="mb-10 bg-gray-800 p-6 rounded-xl shadow-lg animate__animated animate__fadeInUp">
@@ -7,47 +8,44 @@ import { formatNumber } from '../scripts/debtLogic.js';
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2000</p>
-            <p id="per-citizen-2000" class="text-xl text-gray-300">{formatNumber(0.346875e12 / 30700000)} KES</p>
+            <p id="per-citizen-2000" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2000) / getPopulationByYear(2000))} KES</p>
             <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                 Population: 30.7M
             </span>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2005</p>
-            <p id="per-citizen-2005" class="text-xl text-gray-300">{formatNumber(0.69375e12 / 35600000)} KES</p>
+            <p id="per-citizen-2005" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2005) / getPopulationByYear(2005))} KES</p>
             <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                 Population: 35.6M
             </span>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2010</p>
-            <p id="per-citizen-2010" class="text-xl text-gray-300">{formatNumber(1.3875e12 / 40500000)} KES</p>
+            <p id="per-citizen-2010" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2010) / getPopulationByYear(2010))} KES</p>
             <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                 Population: 40.5M
             </span>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2015</p>
-            <p id="per-citizen-2015" class="text-xl text-gray-300">{formatNumber(2.775e12 / 46100000)} KES</p>
+            <p id="per-citizen-2015" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2015) / getPopulationByYear(2015))} KES</p>
             <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                 Population: 46.1M
             </span>
         </div>
         <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2020</p>
-            <p id="per-citizen-2020" class="text-xl text-gray-300">{formatNumber(5.55e12 / 51400000)} KES</p>
+            <p id="per-citizen-2020" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2020) / getPopulationByYear(2020))} KES</p>
             <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                 Population: 51.4M
             </span>
         </div>
-        <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow relative">
+        <div class="bg-gray-700 p-4 rounded-lg shadow hover:shadow-xl transition-shadow group relative">
             <p class="text-lg font-bold text-gray-200">2025 (Live)</p>
-            <p id="per-citizen-2025" class="text-xl text-gray-300 animate-pulse">Loading...</p>
-            <span id="per-citizen-loading" class="absolute inset-0 flex items-center justify-center text-gray-500 opacity-100 transition-opacity">
-                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
+            <p id="per-citizen-2025" class="text-xl text-gray-300">{formatNumber(getDebtByYear(2024) / getPopulationByYear(2025))} KES</p>
+            <span class="absolute top-full mt-2 left-0 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                Population: 57M
             </span>
         </div>
     </div>
